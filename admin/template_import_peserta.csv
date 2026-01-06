@@ -1,0 +1,3 @@
+nomor_peserta,nama_lengkap,email,password,jenis_kelamin,tanggal_lahir,telepon,alamat
+P001,John Doe,john@example.com,password123,L,1990-01-15,08123456789,Jl. Contoh No. 1
+P002,Jane Smith,jane@example.com,password123,P,1992-05-20,08234567890,Jl. Contoh No. 2

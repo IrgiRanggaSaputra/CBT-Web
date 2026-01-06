@@ -1,0 +1,41 @@
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Prevent Directory Listing
+Options -Indexes
+
+# Default Charset
+AddDefaultCharset UTF-8
+
+# PHP Settings
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>
+
+# Error Pages
+ErrorDocument 404 /CBT_LPK/404.php
+ErrorDocument 403 /CBT_LPK/403.php
+
+# Protect sensitive files
+<FilesMatch "(^\.htaccess|^config\.php|\.sql$)">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Enable mod_rewrite (optional - untuk URL rewriting)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /CBT_LPK/
+    
+    # Remove .php extension (optional)
+    # RewriteCond %{REQUEST_FILENAME} !-d
+    # RewriteCond %{REQUEST_FILENAME}\.php -f
+    # RewriteRule ^(.*)$ $1.php [L]
+</IfModule>

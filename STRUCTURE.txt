@@ -1,0 +1,273 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                        STRUKTUR FOLDER CBT LPK                                  ║
+║                     Computer Based Test - LPK System                            ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+CBT_LPK/
+│
+├── 📄 config.php                    → Konfigurasi database & helper functions
+├── 📄 index.php                     → Halaman utama (pilihan login)
+├── 📄 database.sql                  → Database schema & default data
+├── 📄 README.md                     → Dokumentasi lengkap
+├── 📄 QUICKSTART.md                 → Panduan cepat instalasi
+├── 📄 CHANGELOG.md                  → Riwayat perubahan versi
+├── 📄 .htaccess                     → Konfigurasi Apache & security
+│
+├── 📁 admin/                        → ⭐ PANEL ADMINISTRATOR
+│   │
+│   ├── 📁 includes/
+│   │   ├── 📄 header.php            → Template header (sidebar + navbar)
+│   │   └── 📄 footer.php            → Template footer (scripts)
+│   │
+│   ├── 🔐 LOGIN & AUTH
+│   │   ├── 📄 login.php             → Login administrator
+│   │   └── 📄 logout.php            → Logout & destroy session
+│   │
+│   ├── 📊 DASHBOARD
+│   │   └── 📄 dashboard.php         → Dashboard dengan statistik
+│   │
+│   ├── 👥 KELOLA PESERTA
+│   │   ├── 📄 peserta.php           → Daftar peserta (READ)
+│   │   ├── 📄 peserta_add.php       → Tambah peserta (CREATE)
+│   │   ├── 📄 peserta_edit.php      → Edit peserta (UPDATE)
+│   │   ├── 📄 peserta_import.php    → Import dari Excel/CSV
+│   │   └── 📄 template_import_peserta.csv → Template import
+│   │
+│   ├── 📚 KELOLA SOAL
+│   │   ├── 📄 kategori_soal.php     → CRUD kategori soal
+│   │   ├── 📄 bank_soal.php         → Daftar bank soal (READ)
+│   │   ├── 📄 bank_soal_add.php     → Tambah soal (CREATE)
+│   │   ├── 📄 bank_soal_edit.php    → Edit soal (UPDATE)
+│   │   └── 📄 bank_soal_import.php  → Import soal dari Excel
+│   │
+│   ├── 📅 KELOLA JADWAL TES
+│   │   ├── 📄 jadwal_tes.php        → Daftar jadwal (READ)
+│   │   ├── 📄 jadwal_tes_add.php    → Buat jadwal (CREATE)
+│   │   ├── 📄 jadwal_tes_edit.php   → Edit jadwal (UPDATE)
+│   │   └── 📄 jadwal_tes_peserta.php → Assign peserta ke jadwal
+│   │
+│   ├── 📺 MONITORING
+│   │   └── 📄 monitoring.php        → Real-time monitoring peserta tes
+│   │
+│   └── 📈 LAPORAN
+│       ├── 📄 laporan.php           → Laporan hasil tes + Export Excel
+│       └── 📄 laporan_detail.php    → Detail hasil per peserta
+│
+├── 📁 peserta/                      → ⭐ PANEL PESERTA
+│   │
+│   ├── 📁 includes/
+│   │   ├── 📄 header.php            → Template header (navbar)
+│   │   └── 📄 footer.php            → Template footer
+│   │
+│   ├── 🔐 LOGIN & AUTH
+│   │   ├── 📄 login.php             → Login peserta (existing)
+│   │   ├── 📄 login_new.php         → Login peserta (new version)
+│   │   └── 📄 logout.php            → Logout peserta
+│   │
+│   ├── 🏠 DASHBOARD
+│   │   ├── 📄 dashboard.php         → Dashboard peserta (existing)
+│   │   └── 📄 dashboard_new.php     → Dashboard baru + jadwal tes
+│   │
+│   ├── 👤 PROFILE
+│   │   └── 📄 profile.php           → Lihat/edit profil peserta
+│   │
+│   └── ✍️ TES ONLINE
+│       ├── 📄 tes_petunjuk.php      → Halaman petunjuk sebelum tes
+│       ├── 📄 tes_mulai.php         → Interface tes + timer + autosave
+│       ├── 📄 tes_lanjut.php        → Lanjutkan tes yang tertunda
+│       ├── 📄 tes_save.php          → API autosave jawaban (AJAX)
+│       └── 📄 tes_submit.php        → API submit tes + hitung nilai
+│
+└── 📁 assets/                       → ⭐ ASSET FILES
+    └── 📁 uploads/                  → Folder upload gambar soal
+        └── 📄 .htaccess             → Protect direct access
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                            DATABASE STRUCTURE                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+Database: cbt_lpk
+
+📊 TABLES (8):
+
+1. 👤 admin                          → Data administrator
+   - id_admin, username, password, nama_lengkap, email
+
+2. 👥 peserta                        → Data peserta/siswa
+   - id_peserta, nomor_peserta, nama_lengkap, email, password
+   - jenis_kelamin, tanggal_lahir, telepon, alamat, status
+
+3. 📚 kategori_soal                  → Kategori soal (Matematika, dll)
+   - id_kategori, nama_kategori, deskripsi
+
+4. 📝 bank_soal                      → Bank soal/pertanyaan
+   - id_soal, id_kategori, pertanyaan
+   - pilihan_a, pilihan_b, pilihan_c, pilihan_d, pilihan_e
+   - jawaban_benar, bobot, gambar
+
+5. 📅 jadwal_tes                     → Jadwal pelaksanaan tes
+   - id_jadwal, nama_tes, id_kategori
+   - tanggal_mulai, tanggal_selesai, durasi, jumlah_soal
+   - passing_grade, instruksi, status
+
+6. 🔗 peserta_tes                    → Relasi peserta dengan jadwal
+   - id_peserta_tes, id_jadwal, id_peserta
+   - token, status_tes, waktu_mulai, waktu_selesai
+   - nilai, status_kelulusan
+
+7. 📋 soal_tes                       → Soal yang digunakan per jadwal
+   - id_soal_tes, id_jadwal, id_soal, nomor_urut
+
+8. ✅ jawaban_peserta                → Jawaban peserta per soal
+   - id_jawaban, id_peserta_tes, id_soal
+   - jawaban, is_correct, waktu_jawab
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                              FLOW DIAGRAM                                       ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+ADMIN FLOW:
+┌─────────────┐
+│   Login     │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────────┐
+│           Dashboard Admin                   │
+│  • Total Peserta                            │
+│  • Jadwal Aktif                             │
+│  • Bank Soal                                │
+│  • Tes Selesai                              │
+└──────┬──────────────────────────────────────┘
+       │
+       ├──────► 👥 Kelola Peserta → CRUD + Import
+       │
+       ├──────► 📚 Kelola Soal → Kategori + Bank Soal
+       │
+       ├──────► 📅 Kelola Jadwal → Buat + Assign Peserta
+       │
+       ├──────► 📺 Monitoring → Real-time Tracking
+       │
+       └──────► 📈 Laporan → View + Export Excel
+
+
+PESERTA FLOW:
+┌─────────────┐
+│   Login     │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────────┐
+│        Dashboard Peserta                    │
+│  • Info Peserta                             │
+│  • Jadwal Tes Tersedia                      │
+│  • Riwayat & Nilai                          │
+└──────┬──────────────────────────────────────┘
+       │
+       ▼
+┌─────────────┐
+│  Petunjuk   │ ← Baca instruksi tes
+└──────┬──────┘
+       │
+       ▼
+┌───────────────────────────────────────────┐
+│         Interface Tes                     │
+│  ┌─────────────────────────────────────┐  │
+│  │  [Timer: 60:00]                     │  │
+│  └─────────────────────────────────────┘  │
+│  ┌─────────────────────────────────────┐  │
+│  │  Soal No. 1                         │  │
+│  │  Pertanyaan: ...                    │  │
+│  │  ○ A. Pilihan A                     │  │
+│  │  ○ B. Pilihan B (auto-save)        │  │
+│  │  ○ C. Pilihan C                     │  │
+│  │  ○ D. Pilihan D                     │  │
+│  └─────────────────────────────────────┘  │
+│  [Nav: 1|2|3|4|5|6...]                   │
+└───────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────┐
+│   Submit    │ → Penilaian Otomatis
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│   Hasil     │ → Nilai + Status Kelulusan
+└─────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                           TECHNOLOGY STACK                                      ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+Backend:   PHP 7.4+ (Native, No Framework)
+Database:  MySQL 5.7+
+Frontend:  HTML5, CSS3, JavaScript (ES6+)
+UI:        Bootstrap 5.3
+Icons:     Bootstrap Icons
+AJAX:      jQuery 3.6
+Server:    Apache 2.4+ (XAMPP/Laragon)
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                             FEATURES LIST                                       ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+✅ PESERTA FEATURES:
+   ✓ Login dengan nomor peserta
+   ✓ Dashboard jadwal tes
+   ✓ Petunjuk tes
+   ✓ Tes online (CBT)
+   ✓ Timer countdown
+   ✓ Autosave jawaban
+   ✓ Submit otomatis
+   ✓ Navigasi soal
+   ✓ Status tes & nilai
+
+✅ ADMIN FEATURES:
+   ✓ Dashboard statistik
+   ✓ CRUD Peserta
+   ✓ CRUD Bank Soal
+   ✓ CRUD Kategori
+   ✓ CRUD Jadwal Tes
+   ✓ Import Excel (CSV)
+   ✓ Monitoring real-time
+   ✓ Penilaian otomatis
+   ✓ Export laporan (Excel)
+   ✓ Assign peserta ke tes
+
+✅ SECURITY:
+   ✓ Password hashing (bcrypt)
+   ✓ Session management
+   ✓ SQL injection prevention
+   ✓ XSS protection
+   ✓ CSRF basic protection
+   ✓ Input validation
+
+✅ UX/UI:
+   ✓ Responsive design
+   ✓ Modern interface
+   ✓ Real-time feedback
+   ✓ Loading indicators
+   ✓ Alert notifications
+   ✓ Smooth transitions
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📝 NOTES:
+- Semua file PHP menggunakan config.php untuk koneksi database
+- Session digunakan untuk autentikasi (admin & peserta terpisah)
+- Autosave menggunakan AJAX untuk menyimpan jawaban real-time
+- Timer menggunakan JavaScript countdown
+- Auto-submit ketika timer habis
+- Penilaian otomatis berdasarkan jawaban_benar di bank_soal
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 QUICK ACCESS:
+   Admin Panel:  http://localhost/CBT_LPK/admin/
+   Peserta:      http://localhost/CBT_LPK/peserta/
+   Main:         http://localhost/CBT_LPK/
+
+   Default Admin: username = admin, password = password
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,86 @@
+/* RESET */
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* BACKGROUND FOTO */
+.landing-wrapper {
+    min-height: 100vh;
+
+    background-image: url('/CBT_LPK/assets/image/bg1.jpg') center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+}
+
+/* OVERLAY GELAP */
+.landing-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* AGAR KONTEN DI ATAS OVERLAY */
+.landing-wrapper > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* CARD LOGIN */
+.login-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+
+    max-width: 900px;
+    width: 100%;
+}
+
+/* KIRI */
+.login-left {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 40px;
+}
+
+/* KANAN */
+.login-right {
+    padding: 60px 40px;
+}
+
+/* BUTTON */
+.btn-choice {
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 20px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btn-choice:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-choice i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+}

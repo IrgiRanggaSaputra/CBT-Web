@@ -1,0 +1,12 @@
+nomor_peserta,nama_lengkap,email,password,jenis_kelamin,tanggal_lahir,telepon,alamat
+Nomor Peserta,Nama Lengkap,Email,Password,Jenis Kelamin,Tanggal Lahir,Telepon,Alamat
+P011,Andi Saputra,andi.saputra@gmail.com,andi123,L,1998-03-12,081234567801,Jl. Merdeka No. 10 Jakarta
+P012,Siti Aisyah,siti.aisyah@gmail.com,siti123,P,1999-07-25,081234567802,Jl. Kenanga No. 5 Bandung
+P003,Budi Santoso,budi.santoso@gmail.com,budi123,L,1997-11-08,081234567803,Jl. Sudirman No. 21 Surabaya
+P004,Rina Wulandari,rina.wulandari@gmail.com,rina123,P,2000-01-15,081234567804,Jl. Melati No. 3 Yogyakarta
+P005,Dedi Pratama,dedi.pratama@gmail.com,dedi123,L,1996-05-30,081234567805,Jl. Gatot Subroto No. 12 Medan
+P006,Lina Marlina,lina.marlina@gmail.com,lina123,P,1998-09-18,081234567806,Jl. Ahmad Yani No. 8 Semarang
+P007,Agus Wijaya,agus.wijaya@gmail.com,agus123,L,1995-12-02,081234567807,Jl. Diponegoro No. 14 Malang
+P008,Dewi Kartika,dewi.kartika@gmail.com,dewi123,P,1999-04-20,081234567808,Jl. Imam Bonjol No. 6 Denpasar
+P009,Rizky Hidayat,rizky.hidayat@gmail.com,rizky123,L,2001-06-11,081234567809,Jl. Pahlawan No. 9 Bekasi
+P010,Nurul Fadhilah,nurul.fadhilah@gmail.com,nurul123,P,2000-10-27,081234567810,Jl. Cendrawasih No. 4 Makassar
