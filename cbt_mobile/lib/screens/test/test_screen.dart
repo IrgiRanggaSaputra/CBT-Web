@@ -74,23 +74,26 @@ class _TestScreenState extends State<TestScreen> {
       List<dynamic> soalList = [];
       Map<String, dynamic> jawabanTersimpan = {};
 
-      // Coba gunakan soal dari startTest response terlebih dahulu
+      // Gunakan soal dari startTest response
       if (initialSoal != null && initialSoal!.isNotEmpty) {
-        print('Using questions from startTest response');
+        print('Using ${initialSoal!.length} questions from startTest response');
         soalList = initialSoal!;
       } else {
-        // Fallback: ambil soal dari API getQuestions
-        print('Fetching questions from API...');
+        // Fallback: coba ambil soal dari API getQuestions
+        print('No questions from startTest, trying API...');
         try {
           final response = await api.getQuestions(test!.pesertaTesId!);
           soalList = response['soal'] as List? ?? [];
           jawabanTersimpan =
               response['jawaban_tersimpan'] as Map<String, dynamic>? ?? {};
+          print('Got ${soalList.length} questions from API');
         } catch (apiError) {
           print('API getQuestions error: $apiError');
-          // Jika API gagal dan tidak ada soal awal, tampilkan error
+          // Jika API gagal, tampilkan pesan yang lebih jelas
           if (initialSoal == null || initialSoal!.isEmpty) {
-            throw apiError;
+            throw Exception(
+              'Gagal memuat soal. Pastikan tes ini memiliki soal yang sudah dikonfigurasi.',
+            );
           }
         }
       }
