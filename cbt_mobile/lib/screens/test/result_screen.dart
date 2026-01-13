@@ -40,7 +40,18 @@ class _ResultScreenState extends State<ResultScreen> {
     });
 
     try {
-      final data = await api.getTestResult(test!.id);
+      // Use pesertaTesId if available, otherwise use id_jadwal
+      final idToUse = test!.pesertaTesId ?? test!.id;
+      final usePesertaTesId = test!.pesertaTesId != null;
+
+      print(
+        'Loading result with ${usePesertaTesId ? "id_peserta_tes" : "id_jadwal"}: $idToUse',
+      );
+
+      final data = await api.getTestResult(
+        idToUse,
+        usePesertaTesId: usePesertaTesId,
+      );
       if (mounted) {
         setState(() {
           result = data;

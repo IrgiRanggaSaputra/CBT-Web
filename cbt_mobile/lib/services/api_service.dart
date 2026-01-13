@@ -426,9 +426,19 @@ class ApiService {
   // ==================== HASIL ====================
 
   /// Get hasil tes
-  Future<Map<String, dynamic>> getTestResult(String pesertaTesId) async {
-    final url =
-        "${AppConstants.hasilUrl}?action=get&peserta_id=${LocalService.userId}&id_peserta_tes=$pesertaTesId";
+  /// [id] bisa berupa id_peserta_tes atau id_jadwal tergantung parameter usePesertaTesId
+  Future<Map<String, dynamic>> getTestResult(
+    String id, {
+    bool usePesertaTesId = true,
+  }) async {
+    final String url;
+    if (usePesertaTesId) {
+      url =
+          "${AppConstants.hasilUrl}?action=get&peserta_id=${LocalService.userId}&id_peserta_tes=$id";
+    } else {
+      url =
+          "${AppConstants.hasilUrl}?action=get&peserta_id=${LocalService.userId}&id_jadwal=$id";
+    }
     print('API Call: $url');
 
     try {

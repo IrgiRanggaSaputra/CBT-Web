@@ -66,19 +66,42 @@ else {
 /**
  * Get Test Result
  * GET /api/mobile_hasil.php?action=get&id_peserta_tes=1
+ * atau
+ * GET /api/mobile_hasil.php?action=get&id_jadwal=1 (akan mencari id_peserta_tes berdasarkan peserta_id dan id_jadwal)
  */
 function getTestResult($peserta_id) {
     global $conn;
     
-    if (!isset($_GET['id_peserta_tes'])) {
-        sendError('Parameter id_peserta_tes harus diisi', 'VALIDATION_ERROR', 400);
+    // Support both id_peserta_tes and id_jadwal
+    $id_peserta_tes = isset($_GET['id_peserta_tes']) ? (int)$_GET['id_peserta_tes'] : null;
+    $id_jadwal = isset($_GET['id_jadwal']) ? (int)$_GET['id_jadwal'] : null;
+    
+    if (!$id_peserta_tes && !$id_jadwal) {
+        sendError('Parameter id_peserta_tes atau id_jadwal harus diisi', 'VALIDATION_ERROR', 400);
     }
     
-    $id_peserta_tes = (int)$_GET['id_peserta_tes'];
+    // If only id_jadwal provided, find the id_peserta_tes for this peserta
+    if (!$id_peserta_tes && $id_jadwal) {
+        $findQuery = "
+            SELECT id_peserta_tes FROM peserta_tes 
+            WHERE id_jadwal = ? AND id_peserta = ? AND status_tes = 'selesai'
+            ORDER BY waktu_selesai DESC LIMIT 1
+        ";
+        $stmt = $conn->prepare($findQuery);
+        $stmt->bind_param('ii', $id_jadwal, $peserta_id);
+        $stmt->execute();
+        $findResult = $stmt->get_result();
+        
+        if ($findResult->num_rows === 0) {
+            sendError('Hasil tes tidak ditemukan untuk jadwal ini', 'NOT_FOUND', 404);
+        }
+        
+        $id_peserta_tes = (int)$findResult->fetch_assoc()['id_peserta_tes'];
+    }
     
     $query = "
         SELECT 
-            pt.id_peserta_tes, jt.nama_tes,
+            pt.id_peserta_tes, pt.id_jadwal, jt.nama_tes,
             pt.waktu_mulai, pt.waktu_selesai, pt.nilai,
             jt.passing_grade, pt.status_kelulusan, jt.jumlah_soal
         FROM peserta_tes pt
@@ -99,20 +122,23 @@ function getTestResult($peserta_id) {
     
     $hasil = $result->fetch_assoc();
     
-    // Calculate stats
+    // Get id_jadwal for the stats query
+    $id_jadwal_for_stats = $hasil['id_jadwal'];
+    
+    // Calculate stats (use id_soal to join with jawaban_peserta)
     $statsQuery = "
         SELECT 
-            COUNT(DISTINCT jp.id_soal_tes) as total_jawab,
+            COUNT(DISTINCT jp.id_soal) as total_jawab,
             SUM(CASE WHEN jp.jawaban = bs.jawaban_benar THEN 1 ELSE 0 END) as benar
         FROM soal_tes st
-        LEFT JOIN jawaban_peserta jp ON st.id_soal_tes = jp.id_soal_tes 
+        LEFT JOIN jawaban_peserta jp ON st.id_soal = jp.id_soal 
             AND jp.id_peserta_tes = ?
         LEFT JOIN bank_soal bs ON st.id_soal = bs.id_soal
-        WHERE st.id_jadwal = (SELECT id_jadwal FROM peserta_tes WHERE id_peserta_tes = ?)
+        WHERE st.id_jadwal = ?
     ";
     
     $stmt = $conn->prepare($statsQuery);
-    $stmt->bind_param('ii', $id_peserta_tes, $id_peserta_tes);
+    $stmt->bind_param('ii', $id_peserta_tes, $id_jadwal_for_stats);
     $stmt->execute();
     $statsResult = $stmt->get_result()->fetch_assoc();
     
@@ -147,20 +173,43 @@ function getTestResult($peserta_id) {
 /**
  * Get Test Result Detail (with answers)
  * GET /api/mobile_hasil.php?action=detail&id_peserta_tes=1
+ * atau
+ * GET /api/mobile_hasil.php?action=detail&id_jadwal=1
  */
 function getTestResultDetail($peserta_id) {
     global $conn;
     
-    if (!isset($_GET['id_peserta_tes'])) {
-        sendError('Parameter id_peserta_tes harus diisi', 'VALIDATION_ERROR', 400);
+    // Support both id_peserta_tes and id_jadwal
+    $id_peserta_tes = isset($_GET['id_peserta_tes']) ? (int)$_GET['id_peserta_tes'] : null;
+    $id_jadwal = isset($_GET['id_jadwal']) ? (int)$_GET['id_jadwal'] : null;
+    
+    if (!$id_peserta_tes && !$id_jadwal) {
+        sendError('Parameter id_peserta_tes atau id_jadwal harus diisi', 'VALIDATION_ERROR', 400);
     }
     
-    $id_peserta_tes = (int)$_GET['id_peserta_tes'];
+    // If only id_jadwal provided, find the id_peserta_tes for this peserta
+    if (!$id_peserta_tes && $id_jadwal) {
+        $findQuery = "
+            SELECT id_peserta_tes FROM peserta_tes 
+            WHERE id_jadwal = ? AND id_peserta = ? AND status_tes = 'selesai'
+            ORDER BY waktu_selesai DESC LIMIT 1
+        ";
+        $stmt = $conn->prepare($findQuery);
+        $stmt->bind_param('ii', $id_jadwal, $peserta_id);
+        $stmt->execute();
+        $findResult = $stmt->get_result();
+        
+        if ($findResult->num_rows === 0) {
+            sendError('Hasil tes tidak ditemukan untuk jadwal ini', 'NOT_FOUND', 404);
+        }
+        
+        $id_peserta_tes = (int)$findResult->fetch_assoc()['id_peserta_tes'];
+    }
     
     // Get basic result info
     $query = "
         SELECT 
-            pt.id_peserta_tes, jt.nama_tes,
+            pt.id_peserta_tes, pt.id_jadwal, jt.nama_tes,
             pt.waktu_mulai, pt.waktu_selesai, pt.nilai,
             jt.passing_grade, pt.status_kelulusan, jt.jumlah_soal
         FROM peserta_tes pt
@@ -180,8 +229,9 @@ function getTestResultDetail($peserta_id) {
     }
     
     $hasil = $result->fetch_assoc();
+    $id_jadwal_detail = $hasil['id_jadwal'];
     
-    // Get detailed answers
+    // Get detailed answers (use id_soal to join with jawaban_peserta)
     $detailQuery = "
         SELECT 
             st.nomor_urut as nomor,
@@ -195,14 +245,14 @@ function getTestResultDetail($peserta_id) {
             END as status
         FROM soal_tes st
         JOIN bank_soal bs ON st.id_soal = bs.id_soal
-        LEFT JOIN jawaban_peserta jp ON st.id_soal_tes = jp.id_soal_tes 
+        LEFT JOIN jawaban_peserta jp ON st.id_soal = jp.id_soal 
             AND jp.id_peserta_tes = ?
-        WHERE st.id_jadwal = (SELECT id_jadwal FROM peserta_tes WHERE id_peserta_tes = ?)
+        WHERE st.id_jadwal = ?
         ORDER BY st.nomor_urut ASC
     ";
     
     $stmt = $conn->prepare($detailQuery);
-    $stmt->bind_param('ii', $id_peserta_tes, $id_peserta_tes);
+    $stmt->bind_param('ii', $id_peserta_tes, $id_jadwal_detail);
     $stmt->execute();
     $detailResult = $stmt->get_result();
     
