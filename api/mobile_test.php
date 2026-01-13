@@ -213,7 +213,7 @@ function startTest($peserta_id) {
     
     // Check if test exists and is active
     $testQuery = "
-        SELECT id_jadwal, nama_tes, durasi, jumlah_soal
+        SELECT id_jadwal, nama_tes, durasi, jumlah_soal, id_kategori
         FROM jadwal_tes
         WHERE id_jadwal = ? AND status = 'aktif'
         AND tanggal_mulai <= NOW() AND tanggal_selesai >= NOW()
@@ -268,6 +268,40 @@ function startTest($peserta_id) {
         }
         
         $peserta_tes_id = $conn->insert_id;
+    }
+    
+    // Check if soal_tes already has questions for this jadwal
+    $checkSoalQuery = "SELECT COUNT(*) as total FROM soal_tes WHERE id_jadwal = ?";
+    $stmt = $conn->prepare($checkSoalQuery);
+    $stmt->bind_param('i', $id_jadwal);
+    $stmt->execute();
+    $soalCount = $stmt->get_result()->fetch_assoc()['total'];
+    
+    // Auto-populate soal_tes if empty
+    if ($soalCount == 0) {
+        $id_kategori = $test['id_kategori'];
+        $jumlah_soal = (int)$test['jumlah_soal'];
+        
+        // Get random questions from bank_soal based on kategori
+        $randomSoalQuery = "
+            SELECT id_soal FROM bank_soal 
+            WHERE id_kategori = ? 
+            ORDER BY RAND() 
+            LIMIT ?
+        ";
+        $stmt = $conn->prepare($randomSoalQuery);
+        $stmt->bind_param('ii', $id_kategori, $jumlah_soal);
+        $stmt->execute();
+        $randomResult = $stmt->get_result();
+        
+        $nomor_urut = 1;
+        while ($soal = $randomResult->fetch_assoc()) {
+            $insertSoalQuery = "INSERT INTO soal_tes (id_jadwal, id_soal, nomor_urut) VALUES (?, ?, ?)";
+            $stmtInsert = $conn->prepare($insertSoalQuery);
+            $stmtInsert->bind_param('iii', $id_jadwal, $soal['id_soal'], $nomor_urut);
+            $stmtInsert->execute();
+            $nomor_urut++;
+        }
     }
     
     // Get questions for this test
