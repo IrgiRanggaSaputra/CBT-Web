@@ -321,31 +321,38 @@ function startTest($peserta_id) {
 function getAllQuestions($peserta_id) {
     global $conn;
     
-    if (!isset($_GET['id_peserta_tes'])) {
-        sendError('Parameter id_peserta_tes harus diisi', 'VALIDATION_ERROR', 400);
-    }
-    
-    $id_peserta_tes = (int)$_GET['id_peserta_tes'];
-    
-    // Verify that this test belongs to the peserta
-    $verifyQuery = "
-        SELECT pt.id_peserta_tes, pt.id_jadwal
-        FROM peserta_tes pt
-        WHERE pt.id_peserta_tes = ? AND pt.id_peserta = ?
-        LIMIT 1
-    ";
-    
-    $stmt = $conn->prepare($verifyQuery);
-    $stmt->bind_param('ii', $id_peserta_tes, $peserta_id);
-    $stmt->execute();
-    $verifyResult = $stmt->get_result();
-    
-    if ($verifyResult->num_rows === 0) {
-        sendError('Tes tidak ditemukan', 'NOT_FOUND', 404);
-    }
-    
-    $verifyData = $verifyResult->fetch_assoc();
-    $id_jadwal = $verifyData['id_jadwal'];
+    try {
+        if (!isset($_GET['id_peserta_tes'])) {
+            sendError('Parameter id_peserta_tes harus diisi', 'VALIDATION_ERROR', 400);
+            return;
+        }
+        
+        $id_peserta_tes = (int)$_GET['id_peserta_tes'];
+        
+        // Verify that this test belongs to the peserta
+        $verifyQuery = "
+            SELECT pt.id_peserta_tes, pt.id_jadwal
+            FROM peserta_tes pt
+            WHERE pt.id_peserta_tes = ? AND pt.id_peserta = ?
+            LIMIT 1
+        ";
+        
+        $stmt = $conn->prepare($verifyQuery);
+        if (!$stmt) {
+            sendError('Database error: ' . $conn->error, 'DATABASE_ERROR', 500);
+            return;
+        }
+        $stmt->bind_param('ii', $id_peserta_tes, $peserta_id);
+        $stmt->execute();
+        $verifyResult = $stmt->get_result();
+        
+        if ($verifyResult->num_rows === 0) {
+            sendError('Tes tidak ditemukan atau bukan milik peserta ini', 'NOT_FOUND', 404);
+            return;
+        }
+        
+        $verifyData = $verifyResult->fetch_assoc();
+        $id_jadwal = $verifyData['id_jadwal'];
     
     // Get questions
     $questionsQuery = "
@@ -406,6 +413,10 @@ function getAllQuestions($peserta_id) {
     ];
     
     sendSuccess('Soal berhasil diambil', $response);
+    
+    } catch (Exception $e) {
+        sendError('Server error: ' . $e->getMessage(), 'SERVER_ERROR', 500);
+    }
 }
 
 /**
