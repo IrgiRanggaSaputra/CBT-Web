@@ -163,8 +163,29 @@ class ApiService {
     }
   }
 
+  /// Get peserta data by email (for Firebase-first auth)
+  Future<Map<String, dynamic>> getPesertaByEmail(String email) async {
+    final url =
+        "${AppConstants.authUrl}?action=get-by-email&email=${Uri.encodeComponent(email)}";
+    print('API Call: $url');
+
+    try {
+      final res = await http
+          .get(Uri.parse(url), headers: _getHeaders(withAuth: false))
+          .timeout(AppConstants.apiTimeout);
+
+      return _handleResponse(res);
+    } catch (e) {
+      print('ERROR in getPesertaByEmail: $e');
+      rethrow;
+    }
+  }
+
   /// Link Firebase UID ke akun peserta
-  Future<Map<String, dynamic>> linkFirebaseUid(String firebaseUid) async {
+  Future<Map<String, dynamic>> linkFirebaseUid(
+    String firebaseUid, {
+    int? pesertaId,
+  }) async {
     final url = AppConstants.linkFirebaseUrl;
     print('API Call: $url');
 
@@ -172,10 +193,10 @@ class ApiService {
       final res = await http
           .post(
             Uri.parse(url),
-            headers: _getHeaders(),
+            headers: _getHeaders(withAuth: false),
             body: jsonEncode({
               'firebase_uid': firebaseUid,
-              'peserta_id': LocalService.userId,
+              'peserta_id': pesertaId ?? LocalService.userId,
             }),
           )
           .timeout(AppConstants.apiTimeout);

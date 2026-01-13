@@ -24,6 +24,11 @@ elseif ($action === 'verify-token' && $method === 'POST') {
     verifyTokenEndpoint();
 }
 
+// ==================== GET BY EMAIL (Firebase-first auth) ====================
+elseif ($action === 'get-by-email' && $method === 'GET') {
+    getPesertaByEmail();
+}
+
 // ==================== DEFAULT ====================
 else {
     sendError('Endpoint tidak ditemukan', 'NOT_FOUND', 404);
@@ -107,6 +112,68 @@ function logoutPeserta() {
     session_destroy();
     
     sendSuccess('Logout berhasil');
+}
+
+/**
+ * Get Peserta by Email (for Firebase-first authentication)
+ * GET /api/mobile_auth.php?action=get-by-email&email=xxx
+ * 
+ * This endpoint is used after Firebase authentication is successful.
+ * It returns peserta data based on email without password verification.
+ */
+function getPesertaByEmail() {
+    global $conn;
+    
+    $email = $_GET['email'] ?? '';
+    
+    if (empty($email)) {
+        sendError('Email tidak boleh kosong', 'VALIDATION_ERROR', 400);
+    }
+    
+    $email = sanitizeInput($email);
+    
+    // Query peserta dari database berdasarkan email
+    $query = "
+        SELECT id_peserta, nomor_peserta, nama_lengkap, email, 
+               jenis_kelamin, tanggal_lahir, telepon, alamat, 
+               status, firebase_uid
+        FROM peserta 
+        WHERE email = ? 
+        AND status = 'aktif'
+        LIMIT 1
+    ";
+    
+    $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        sendError('Database error: ' . $conn->error, 'DB_ERROR', 500);
+    }
+    
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        sendError('Peserta dengan email ini tidak ditemukan atau tidak aktif', 'NOT_FOUND', 404);
+    }
+    
+    $peserta = $result->fetch_assoc();
+    
+    // Generate token untuk peserta ini
+    $token = generateToken($peserta['id_peserta']);
+    
+    // Response
+    sendSuccess('Peserta ditemukan', [
+        'id_peserta' => (int)$peserta['id_peserta'],
+        'nomor_peserta' => $peserta['nomor_peserta'],
+        'nama_lengkap' => $peserta['nama_lengkap'],
+        'email' => $peserta['email'],
+        'jenis_kelamin' => $peserta['jenis_kelamin'],
+        'tanggal_lahir' => $peserta['tanggal_lahir'],
+        'telepon' => $peserta['telepon'],
+        'alamat' => $peserta['alamat'],
+        'firebase_uid' => $peserta['firebase_uid'],
+        'token' => $token
+    ], 200);
 }
 
 /**
