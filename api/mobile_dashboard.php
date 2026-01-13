@@ -83,6 +83,25 @@ function getDashboard($peserta_id) {
     $stmt->execute();
     $statsResult = $stmt->get_result()->fetch_assoc();
     
+    // Get count of available/active tests (not yet completed by this user)
+    $tesAktifQuery = "
+        SELECT COUNT(*) as tes_aktif
+        FROM jadwal_tes jt
+        WHERE jt.status = 'aktif'
+        AND NOW() BETWEEN jt.tanggal_mulai AND jt.tanggal_selesai
+        AND NOT EXISTS (
+            SELECT 1 FROM peserta_tes pt 
+            WHERE pt.id_jadwal = jt.id_jadwal 
+            AND pt.id_peserta = ? 
+            AND pt.status_tes = 'selesai'
+        )
+    ";
+    $stmt = $conn->prepare($tesAktifQuery);
+    $stmt->bind_param('i', $peserta_id);
+    $stmt->execute();
+    $tesAktifResult = $stmt->get_result()->fetch_assoc();
+    $tesAktif = (int)($tesAktifResult['tes_aktif'] ?? 0);
+    
     // Get upcoming tests
     $upcomingQuery = "
         SELECT 
@@ -185,6 +204,7 @@ function getDashboard($peserta_id) {
         ],
         'statistik' => [
             'total_tes' => (int)($statsResult['total_tes'] ?? 0),
+            'tes_aktif' => $tesAktif,
             'tes_selesai' => (int)($statsResult['tes_selesai'] ?? 0),
             'tes_lulus' => (int)($statsResult['tes_lulus'] ?? 0),
             'tes_gagal' => (int)($statsResult['tes_gagal'] ?? 0),

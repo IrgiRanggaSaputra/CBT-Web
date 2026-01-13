@@ -566,23 +566,109 @@ class _TestScreenState extends State<TestScreen> {
 
   void _confirmSubmit() {
     final unanswered = questions.length - answers.length;
+    final allAnswered = unanswered == 0;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Selesaikan Ujian?'),
+        title: Row(
+          children: [
+            Icon(
+              allAnswered ? Icons.check_circle : Icons.warning_amber_rounded,
+              color: allAnswered ? Colors.green : Colors.orange,
+            ),
+            const SizedBox(width: 8),
+            const Text('Konfirmasi'),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Soal terjawab: ${answers.length}'),
-            if (unanswered > 0)
-              Text(
-                'Soal belum dijawab: $unanswered',
-                style: const TextStyle(color: Colors.red),
+            // Status soal
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
               ),
-            const SizedBox(height: 8),
-            const Text('Apakah Anda yakin ingin menyelesaikan ujian?'),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Total Soal'),
+                      Text(
+                        '${questions.length}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Sudah Dijawab'),
+                      Text(
+                        '${answers.length}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (unanswered > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Belum Dijawab'),
+                        Text(
+                          '$unanswered',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (!allAnswered)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.orange.shade700),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Masih ada $unanswered soal yang belum dijawab!',
+                        style: TextStyle(color: Colors.orange.shade900),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (!allAnswered) const SizedBox(height: 12),
+            const Text(
+              'Apakah Anda yakin ingin menyelesaikan ujian ini?',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Setelah diselesaikan, Anda tidak dapat mengubah jawaban.',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            ),
           ],
         ),
         actions: [
@@ -595,8 +681,10 @@ class _TestScreenState extends State<TestScreen> {
               Navigator.pop(context);
               _submitTest();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text('Selesai'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: allAnswered ? Colors.green : Colors.orange,
+            ),
+            child: Text(allAnswered ? 'Selesai' : 'Selesaikan Saja'),
           ),
         ],
       ),
@@ -606,7 +694,12 @@ class _TestScreenState extends State<TestScreen> {
   Future<void> _submitTest() async {
     if (test == null || test!.pesertaTesId == null) return;
 
-    setState(() => submitting = true);
+    // Tampilkan loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const _SubmitLoadingDialog(),
+    );
 
     try {
       // Submit test
@@ -616,9 +709,29 @@ class _TestScreenState extends State<TestScreen> {
 
       if (!mounted) return;
 
-      Navigator.pushReplacementNamed(context, Routes.result, arguments: test);
+      // Tutup loading dialog dan tampilkan success
+      Navigator.pop(context);
+
+      // Tampilkan success dialog dengan animasi
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const _SubmitSuccessDialog(),
+      );
+
+      if (!mounted) return;
+
+      // Navigate to dashboard
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Routes.dashboard,
+        (route) => false,
+      );
     } catch (e) {
       if (!mounted) return;
+
+      // Tutup loading dialog
+      Navigator.pop(context);
 
       setState(() => submitting = false);
 
@@ -629,5 +742,150 @@ class _TestScreenState extends State<TestScreen> {
         ),
       );
     }
+  }
+}
+
+/// Loading Dialog saat submit
+class _SubmitLoadingDialog extends StatelessWidget {
+  const _SubmitLoadingDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(
+                strokeWidth: 4,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Mengirim Jawaban...',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Mohon tunggu sebentar',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Success Dialog setelah submit berhasil
+class _SubmitSuccessDialog extends StatefulWidget {
+  const _SubmitSuccessDialog();
+
+  @override
+  State<_SubmitSuccessDialog> createState() => _SubmitSuccessDialogState();
+}
+
+class _SubmitSuccessDialogState extends State<_SubmitSuccessDialog>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _checkAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
+      ),
+    );
+
+    _checkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    _controller.forward();
+
+    // Auto close after 2 seconds
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Colors.green.shade600,
+                        size: 50 * _checkAnimation.value,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Ujian Selesai!',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Jawaban berhasil dikirim',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
