@@ -48,6 +48,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
+  // Jumlah tes aktif (belum selesai dikerjakan)
+  int _tesAktifCount = 0;
+
   Future<void> _loadDashboard() async {
     setState(() {
       loading = true;
@@ -56,6 +59,23 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     try {
       final data = await api.getDashboard();
+
+      // Fetch test list untuk hitung tes aktif
+      try {
+        final tests = await api.getTests();
+        if (tests is List) {
+          // Hitung tes yang belum selesai (status bukan 'selesai')
+          _tesAktifCount = tests
+              .where(
+                (t) =>
+                    t['status'] != 'selesai' && t['status_kelulusan'] == null,
+              )
+              .length;
+        }
+      } catch (_) {
+        _tesAktifCount = 0;
+      }
+
       if (mounted) {
         setState(() {
           dashboardData = data;
@@ -201,8 +221,10 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildContent() {
     // Mapping dari statistik API
     final statistik = dashboardData?['statistik'] ?? {};
-    // tes_aktif = tes yang tersedia dan belum selesai dikerjakan
-    final tesAktif = statistik['tes_aktif'] ?? 0;
+
+    // Gunakan _tesAktifCount yang dihitung dari test list
+    final tesAktif = _tesAktifCount;
+
     // tes_selesai = tes yang sudah selesai dikerjakan
     final tesSelesai = statistik['tes_selesai'] ?? 0;
 
