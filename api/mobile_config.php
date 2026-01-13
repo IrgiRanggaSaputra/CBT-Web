@@ -106,8 +106,13 @@ function getPesertaId() {
  * Validate Required Fields
  */
 function validateRequired($data, $fields) {
+    // Handle null or non-array input
+    if (!is_array($data)) {
+        sendError("Request body tidak valid atau kosong", 'VALIDATION_ERROR', 400);
+    }
+    
     foreach ($fields as $field) {
-        if (!isset($data[$field]) || empty(trim((string)$data[$field]))) {
+        if (!isset($data[$field]) || (is_string($data[$field]) && empty(trim($data[$field])))) {
             sendError("Field '$field' harus diisi", 'VALIDATION_ERROR', 400);
         }
     }
