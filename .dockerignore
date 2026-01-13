@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.local
+README.md
+CHANGELOG.md
+QUICKSTART.md
+SELESAI.txt
+STRUCTURE.txt
+CARA_IMPORT_SOAL_DENGAN_GAMBAR.md
+.vscode
+.idea
+*.log
+node_modules
+.DS_Store

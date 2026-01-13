@@ -55,3 +55,40 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    body {
+        padding-left: 0;
+        padding: 20px;
+    }
+    
+    .login-wrapper {
+        padding-left: 0;
+        padding: 20px;
+    }
+    
+    .login-box {
+        padding: 30px 25px;
+        max-width: 100%;
+    }
+    
+    .login-header i {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-box {
+        padding: 25px 20px;
+        border-radius: 12px;
+    }
+    
+    .login-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .login-header i {
+        font-size: 2rem;
+    }
+}

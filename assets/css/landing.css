@@ -84,3 +84,78 @@ body {
     display: block;
     margin-bottom: 10px;
 }
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    .login-container {
+        margin: 20px;
+        max-width: 100%;
+    }
+    
+    .login-left {
+        padding: 40px 30px;
+    }
+    
+    .login-right {
+        padding: 40px 30px;
+    }
+    
+    .login-left h1 {
+        font-size: 1.5rem;
+    }
+    
+    .login-left h3 {
+        font-size: 1.2rem;
+    }
+    
+    .login-left p {
+        font-size: 0.95rem;
+    }
+    
+    .btn-choice i {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .landing-wrapper {
+        padding: 10px;
+    }
+    
+    .login-container {
+        margin: 10px;
+        border-radius: 10px;
+    }
+    
+    .login-left {
+        padding: 30px 20px;
+    }
+    
+    .login-right {
+        padding: 30px 20px;
+    }
+    
+    .login-left h1 {
+        font-size: 1.3rem;
+    }
+    
+    .login-left h3 {
+        font-size: 1.1rem;
+    }
+    
+    .login-left p {
+        font-size: 0.875rem;
+    }
+    
+    .login-right h2 {
+        font-size: 1.3rem;
+    }
+    
+    .btn-choice {
+        padding: 15px;
+    }
+    
+    .btn-choice h5 {
+        font-size: 1rem;
+    }
+}

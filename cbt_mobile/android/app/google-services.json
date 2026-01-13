@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1041673028858",
+    "project_id": "cbt-lpk",
+    "storage_bucket": "cbt-lpk.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041673028858:android:1c3a5b1fd2ae40dc19f543",
+        "android_client_info": {
+          "package_name": "com.example.cbt_kiyoraka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOlF17rro_u1DMBiQgxHpNtqiZEg3NlbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

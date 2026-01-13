@@ -110,3 +110,85 @@ body {
     margin-right: 10px;
     transform: scale(1.5);
 }
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px;
+    }
+    
+    .timer-box {
+        top: 70px;
+        right: 10px;
+        padding: 10px 15px;
+    }
+    
+    .timer {
+        font-size: 1.5rem;
+    }
+    
+    .question-nav {
+        grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+        gap: 8px;
+    }
+    
+    .question-nav-btn {
+        height: 40px;
+        font-size: 0.875rem;
+    }
+    
+    .question-box {
+        padding: 20px;
+    }
+    
+    .option-box {
+        padding: 12px;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .timer-box {
+        position: static;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
+    .timer {
+        font-size: 1.3rem;
+    }
+    
+    .question-nav {
+        grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+        gap: 5px;
+    }
+    
+    .question-nav-btn {
+        height: 35px;
+        font-size: 0.75rem;
+    }
+    
+    .question-box {
+        padding: 15px;
+    }
+    
+    .option-box {
+        padding: 10px;
+        font-size: 0.875rem;
+    }
+    
+    .option-box input[type="radio"] {
+        transform: scale(1.2);
+    }
+    
+    h1, h2, h3, h4 {
+        font-size: 1.2rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+    }
+}

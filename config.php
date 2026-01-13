@@ -1,9 +1,24 @@
 <?php
-// Konfigurasi Database
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'cbt_lpk');
+// Load environment variables from .env file if exists
+if (file_exists(__DIR__ . '/.env')) {
+    $env_lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($env_lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            [$key, $value] = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            if (!isset($_ENV[$key])) {
+                $_ENV[$key] = $value;
+            }
+        }
+    }
+}
+
+// Konfigurasi Database - Baca dari environment variables atau gunakan default
+define('DB_HOST', $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? 'localhost');
+define('DB_USER', $_ENV['DB_USER'] ?? $_SERVER['DB_USER'] ?? 'root');
+define('DB_PASS', $_ENV['DB_PASS'] ?? $_SERVER['DB_PASS'] ?? '');
+define('DB_NAME', $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? 'cbt_lpk');
 
 // Koneksi Database
 $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -20,8 +35,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Base URL
-define('BASE_URL', 'http://localhost/CBT_LPK/');
+// Base URL - Baca dari environment variables atau auto-generate
+$base_url = $_ENV['BASE_URL'] ?? $_SERVER['BASE_URL'] ?? null;
+if (!$base_url) {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $base_url = $protocol . $host . '/';
+}
+define('BASE_URL', $base_url);
 
 // Login security settings
 define('MAX_LOGIN_ATTEMPTS', 3);

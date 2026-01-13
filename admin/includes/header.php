@@ -10,8 +10,16 @@
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="bi bi-list"></i>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <!-- Sidebar -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="navbar-brand">
             <img src="../assets/image/kiyoraka.png" alt="Logo" style="height: 1em;"> CBT KIYORAKA
         </div>

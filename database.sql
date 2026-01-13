@@ -19,6 +19,7 @@ CREATE TABLE peserta (
     nama_lengkap VARCHAR(100) NOT NULL,
     email VARCHAR(100),
     password VARCHAR(255) NOT NULL,
+    firebase_uid VARCHAR(255) UNIQUE,
     jenis_kelamin ENUM('L', 'P'),
     tanggal_lahir DATE,
     telepon VARCHAR(15),
