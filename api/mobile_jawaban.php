@@ -239,27 +239,67 @@ function submitTest($peserta_id) {
     
     $id_peserta_tes = (int)$input['id_peserta_tes'];
     
-    // Verify peserta_tes
-    $verifyQuery = "
-        SELECT pt.id_peserta_tes, pt.id_jadwal, jt.durasi,
-               pt.waktu_mulai
+    // First check if peserta_tes exists for this peserta
+    $checkQuery = "
+        SELECT pt.id_peserta_tes, pt.id_jadwal, pt.status_tes,
+               pt.waktu_mulai, pt.waktu_selesai, pt.nilai, jt.durasi
         FROM peserta_tes pt
         JOIN jadwal_tes jt ON pt.id_jadwal = jt.id_jadwal
         WHERE pt.id_peserta_tes = ? AND pt.id_peserta = ?
-        AND pt.status_tes = 'sedang_tes'
         LIMIT 1
     ";
     
-    $stmt = $conn->prepare($verifyQuery);
+    $stmt = $conn->prepare($checkQuery);
     $stmt->bind_param('ii', $id_peserta_tes, $peserta_id);
     $stmt->execute();
-    $verifyResult = $stmt->get_result();
+    $checkResult = $stmt->get_result();
     
-    if ($verifyResult->num_rows === 0) {
-        sendError('Tes tidak valid', 'NOT_FOUND', 404);
+    if ($checkResult->num_rows === 0) {
+        sendError('Data tes tidak ditemukan untuk peserta ini', 'NOT_FOUND', 404);
     }
     
-    $testData = $verifyResult->fetch_assoc();
+    $testData = $checkResult->fetch_assoc();
+    
+    // If test already submitted, return success with existing data
+    if ($testData['status_tes'] === 'selesai') {
+        // Calculate stats from existing data
+        $id_jadwal = (int)$testData['id_jadwal'];
+        
+        $statsQuery = "
+            SELECT 
+                COUNT(DISTINCT jp.id_soal_tes) as total_jawab,
+                COUNT(DISTINCT st.id_soal_tes) as total_soal
+            FROM soal_tes st
+            LEFT JOIN jawaban_peserta jp ON st.id_soal_tes = jp.id_soal_tes 
+                AND jp.id_peserta_tes = ?
+            WHERE st.id_jadwal = ?
+        ";
+        
+        $stmt = $conn->prepare($statsQuery);
+        $stmt->bind_param('ii', $id_peserta_tes, $id_jadwal);
+        $stmt->execute();
+        $statsResult = $stmt->get_result()->fetch_assoc();
+        
+        $response = [
+            'id_peserta_tes' => $id_peserta_tes,
+            'waktu_selesai' => $testData['waktu_selesai'],
+            'total_soal' => (int)$statsResult['total_soal'],
+            'soal_terjawab' => (int)$statsResult['total_jawab'],
+            'soal_kosong' => (int)$statsResult['total_soal'] - (int)$statsResult['total_jawab'],
+            'nilai_sementara' => round((float)$testData['nilai'], 2),
+            'status' => 'sudah_selesai',
+            'message' => 'Tes sudah disubmit sebelumnya'
+        ];
+        
+        sendSuccess('Tes sudah disubmit sebelumnya', $response);
+        return;
+    }
+    
+    // Verify test is in progress
+    if ($testData['status_tes'] !== 'sedang_tes') {
+        sendError('Status tes tidak valid: ' . $testData['status_tes'], 'INVALID_STATUS', 400);
+    }
+    
     $id_jadwal = (int)$testData['id_jadwal'];
     
     // Update status test to completed
