@@ -79,8 +79,8 @@ class _TestScreenState extends State<TestScreen> {
         print('Using ${initialSoal!.length} questions from startTest response');
         soalList = initialSoal!;
       } else {
-        // Fallback: coba ambil soal dari API getQuestions
-        print('No questions from startTest, trying API...');
+        // Soal kosong dari startTest, coba API getQuestions sebagai backup
+        print('No questions from startTest (soal empty), trying API backup...');
         try {
           final response = await api.getQuestions(test!.pesertaTesId!);
           soalList = response['soal'] as List? ?? [];
@@ -88,18 +88,22 @@ class _TestScreenState extends State<TestScreen> {
               response['jawaban_tersimpan'] as Map<String, dynamic>? ?? {};
           print('Got ${soalList.length} questions from API');
         } catch (apiError) {
-          print('API getQuestions error: $apiError');
-          // Jika API gagal, tampilkan pesan yang lebih jelas
-          if (initialSoal == null || initialSoal!.isEmpty) {
-            throw Exception(
-              'Gagal memuat soal. Pastikan tes ini memiliki soal yang sudah dikonfigurasi.',
-            );
-          }
+          print('API getQuestions failed: $apiError');
+          // API gagal, set soalList kosong dan tampilkan pesan error nanti
+          soalList = [];
         }
       }
 
       if (mounted) {
         setState(() {
+          if (soalList.isEmpty) {
+            // Tidak ada soal sama sekali
+            error =
+                'Tes ini belum memiliki soal. Silakan hubungi administrator untuk menambahkan soal ke jadwal tes.';
+            loading = false;
+            return;
+          }
+
           questions = soalList
               .map((e) => QuestionModel.fromJson(e as Map<String, dynamic>))
               .toList();
@@ -116,12 +120,6 @@ class _TestScreenState extends State<TestScreen> {
           });
 
           loading = false;
-
-          // Check if no questions
-          if (questions.isEmpty) {
-            error =
-                'Tidak ada soal untuk tes ini. Silakan hubungi administrator.';
-          }
 
           // Start timer
           if (test?.durasi != null && questions.isNotEmpty) {
