@@ -15,20 +15,32 @@ if ($method !== 'POST') {
 $data = json_decode(file_get_contents("php://input"), true);
 
 $firebase_uid = $data['firebase_uid'] ?? '';
+$peserta_id = $data['peserta_id'] ?? '';
 $nomor_peserta = $data['nomor_peserta'] ?? '';
 
-if (!$firebase_uid || !$nomor_peserta) {
-    sendError('Data tidak lengkap. Harap isi firebase_uid dan nomor_peserta', 'VALIDATION_ERROR', 400);
+if (!$firebase_uid) {
+    sendError('Firebase UID harus diisi', 'VALIDATION_ERROR', 400);
+}
+
+if (!$peserta_id && !$nomor_peserta) {
+    sendError('Data tidak lengkap. Harap isi peserta_id atau nomor_peserta', 'VALIDATION_ERROR', 400);
 }
 
 // Sanitize input
 $firebase_uid = sanitizeInput($firebase_uid);
-$nomor_peserta = sanitizeInput($nomor_peserta);
 
 // Cek peserta dengan prepared statement (untuk keamanan SQL Injection)
-$query = "SELECT id_peserta, firebase_uid, nama_lengkap FROM peserta WHERE nomor_peserta = ? LIMIT 1";
-$stmt = $conn->prepare($query);
-$stmt->bind_param('s', $nomor_peserta);
+if ($peserta_id) {
+    $peserta_id = (int)$peserta_id;
+    $query = "SELECT id_peserta, nomor_peserta, firebase_uid, nama_lengkap FROM peserta WHERE id_peserta = ? LIMIT 1";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $peserta_id);
+} else {
+    $nomor_peserta = sanitizeInput($nomor_peserta);
+    $query = "SELECT id_peserta, nomor_peserta, firebase_uid, nama_lengkap FROM peserta WHERE nomor_peserta = ? LIMIT 1";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('s', $nomor_peserta);
+}
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -37,6 +49,7 @@ if ($result->num_rows === 0) {
 }
 
 $peserta = $result->fetch_assoc();
+$nomor_peserta = $peserta['nomor_peserta'];
 
 // Cegah overwrite UID jika sudah terhubung dengan akun lain
 if (!empty($peserta['firebase_uid']) && $peserta['firebase_uid'] !== $firebase_uid) {
@@ -44,9 +57,9 @@ if (!empty($peserta['firebase_uid']) && $peserta['firebase_uid'] !== $firebase_u
 }
 
 // Cek apakah Firebase UID sudah digunakan oleh peserta lain
-$checkUidQuery = "SELECT id_peserta FROM peserta WHERE firebase_uid = ? AND nomor_peserta != ? LIMIT 1";
+$checkUidQuery = "SELECT id_peserta FROM peserta WHERE firebase_uid = ? AND id_peserta != ? LIMIT 1";
 $stmt = $conn->prepare($checkUidQuery);
-$stmt->bind_param('ss', $firebase_uid, $nomor_peserta);
+$stmt->bind_param('si', $firebase_uid, $peserta['id_peserta']);
 $stmt->execute();
 $checkResult = $stmt->get_result();
 
@@ -55,9 +68,9 @@ if ($checkResult->num_rows > 0) {
 }
 
 // Simpan UID dengan prepared statement
-$updateQuery = "UPDATE peserta SET firebase_uid = ? WHERE nomor_peserta = ?";
+$updateQuery = "UPDATE peserta SET firebase_uid = ? WHERE id_peserta = ?";
 $stmt = $conn->prepare($updateQuery);
-$stmt->bind_param('ss', $firebase_uid, $nomor_peserta);
+$stmt->bind_param('si', $firebase_uid, $peserta['id_peserta']);
 
 if ($stmt->execute()) {
     sendSuccess('Firebase UID berhasil terhubung', [

@@ -12,8 +12,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  final nomorPeserta = TextEditingController();
-  final pass = TextEditingController();
+  final emailController = TextEditingController();
+  final passController = TextEditingController();
   final auth = AuthService();
   bool loading = false;
   bool obscurePassword = true;
@@ -51,8 +51,8 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void dispose() {
     _animationController.dispose();
-    nomorPeserta.dispose();
-    pass.dispose();
+    emailController.dispose();
+    passController.dispose();
     super.dispose();
   }
 
@@ -196,19 +196,19 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           const SizedBox(height: 32),
 
-          // Nomor Peserta Field
+          // Email Field
           _buildTextField(
-            controller: nomorPeserta,
-            label: 'Nomor Peserta',
-            hint: 'Masukkan nomor peserta',
-            icon: Icons.badge_outlined,
-            keyboardType: TextInputType.text,
+            controller: emailController,
+            label: 'Email',
+            hint: 'Masukkan email Anda',
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 20),
 
           // Password Field
           _buildTextField(
-            controller: pass,
+            controller: passController,
             label: 'Password',
             hint: 'Masukkan password',
             icon: Icons.lock_outline_rounded,
@@ -350,18 +350,24 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void login() async {
-    final nomor = nomorPeserta.text.trim();
-    final password = pass.text.trim();
+    final email = emailController.text.trim();
+    final password = passController.text.trim();
 
-    if (nomor.isEmpty || password.isEmpty) {
-      _showErrorSnackBar('Nomor peserta dan password harus diisi');
+    if (email.isEmpty || password.isEmpty) {
+      _showErrorSnackBar('Email dan password harus diisi');
+      return;
+    }
+
+    // Validate email format
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      _showErrorSnackBar('Format email tidak valid');
       return;
     }
 
     setState(() => loading = true);
 
     try {
-      final result = await auth.login(nomor, password);
+      final result = await auth.loginWithEmail(email, password);
 
       if (!mounted) return;
 
@@ -369,11 +375,22 @@ class _LoginScreenState extends State<LoginScreen>
         print('Login successful, navigating to dashboard');
         Navigator.pushReplacementNamed(context, Routes.dashboard);
       } else {
-        _showErrorSnackBar('Login gagal. Periksa nomor peserta dan password.');
+        _showErrorSnackBar('Login gagal. Periksa email dan password.');
       }
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnackBar('Error: $e');
+      String errorMsg = e.toString();
+      if (errorMsg.contains('user-not-found')) {
+        errorMsg = 'Akun tidak ditemukan. Silakan hubungi admin.';
+      } else if (errorMsg.contains('wrong-password') ||
+          errorMsg.contains('invalid-credential')) {
+        errorMsg = 'Password salah. Silakan coba lagi.';
+      } else if (errorMsg.contains('invalid-email')) {
+        errorMsg = 'Format email tidak valid.';
+      } else if (errorMsg.contains('Peserta tidak ditemukan')) {
+        errorMsg = 'Akun belum terdaftar sebagai peserta.';
+      }
+      _showErrorSnackBar(errorMsg);
     } finally {
       if (mounted) {
         setState(() => loading = false);
