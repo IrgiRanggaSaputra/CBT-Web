@@ -115,22 +115,25 @@ class _LoginScreenState extends State<LoginScreen>
       children: [
         // Logo Container with glow
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
+            color: Colors.white,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withValues(alpha: 0.3),
                 blurRadius: 30,
                 spreadRadius: 5,
               ),
             ],
           ),
-          child: const Icon(
-            Icons.school_rounded,
-            size: 64,
-            color: Colors.white,
+          child: ClipOval(
+            child: Image.asset(
+              'assets/images/kiyoraka.png',
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -331,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen>
     return Column(
       children: [
         Text(
-          'Developed with ❤️',
+          'Developed with IRS Project',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.7),
             fontSize: 12,

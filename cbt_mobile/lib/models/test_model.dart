@@ -38,7 +38,9 @@ class TestModel {
           json['jadwal_id']?.toString() ??
           json['id']?.toString() ??
           '',
-      pesertaTesId: json['id_peserta_tes']?.toString() ?? json['peserta_tes_id']?.toString(),
+      pesertaTesId:
+          json['id_peserta_tes']?.toString() ??
+          json['peserta_tes_id']?.toString(),
       title: json['nama_tes'] ?? json['title'] ?? '',
       description: json['deskripsi'] ?? json['description'] ?? json['kategori'],
       jumlahSoal: int.tryParse(json['jumlah_soal']?.toString() ?? ''),
@@ -109,8 +111,9 @@ class TestModel {
   /// Get status display text
   String get statusText {
     if (isFinished == true || status == 'selesai') return 'Selesai';
-    if (isStarted == true || status == 'berlangsung')
+    if (isStarted == true || status == 'berlangsung') {
       return 'Sedang Berlangsung';
+    }
     return 'Belum Dimulai';
   }
 }

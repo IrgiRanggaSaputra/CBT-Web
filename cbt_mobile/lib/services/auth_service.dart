@@ -147,7 +147,7 @@ class AuthService {
 
       // Try Firebase login with generated email
       String firebaseUid = 'local_$pesertaId';
-      final email = '${nomorPeserta}@cbt-lpk.local';
+      final email = '$nomorPeserta@cbt-lpk.local';
 
       try {
         final result = await _auth.signInWithEmailAndPassword(

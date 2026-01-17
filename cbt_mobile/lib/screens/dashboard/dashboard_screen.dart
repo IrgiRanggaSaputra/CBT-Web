@@ -63,15 +63,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       // Fetch test list untuk hitung tes aktif
       try {
         final tests = await api.getTests();
-        if (tests is List) {
-          // Hitung tes yang belum selesai (status bukan 'selesai')
-          _tesAktifCount = tests
-              .where(
-                (t) =>
-                    t['status'] != 'selesai' && t['status_kelulusan'] == null,
-              )
-              .length;
-        }
+        // Hitung tes yang belum selesai (status bukan 'selesai')
+        _tesAktifCount = tests
+            .where(
+              (t) => t['status'] != 'selesai' && t['status_kelulusan'] == null,
+            )
+            .length;
       } catch (_) {
         _tesAktifCount = 0;
       }

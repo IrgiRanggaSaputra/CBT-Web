@@ -77,8 +77,11 @@ function saveAnswer($peserta_id) {
     $id_soal_tes = (int)$input['id_soal_tes'];
     $jawaban = sanitizeInput($input['jawaban']);
     
-    // Convert id_soal_tes to id_soal (the actual soal ID from bank_soal)
-    $soalQuery = "SELECT id_soal FROM soal_tes WHERE id_soal_tes = ? LIMIT 1";
+    // Convert id_soal_tes to id_soal (the actual soal ID from bank_soal) and get jawaban_benar
+    $soalQuery = "SELECT st.id_soal, bs.jawaban_benar 
+                  FROM soal_tes st 
+                  JOIN bank_soal bs ON st.id_soal = bs.id_soal 
+                  WHERE st.id_soal_tes = ? LIMIT 1";
     $stmt = $conn->prepare($soalQuery);
     $stmt->bind_param('i', $id_soal_tes);
     $stmt->execute();
@@ -88,7 +91,12 @@ function saveAnswer($peserta_id) {
         sendError('Soal tidak ditemukan', 'NOT_FOUND', 404);
     }
     
-    $id_soal = (int)$soalResult->fetch_assoc()['id_soal'];
+    $soalData = $soalResult->fetch_assoc();
+    $id_soal = (int)$soalData['id_soal'];
+    $jawaban_benar = $soalData['jawaban_benar'];
+    
+    // Hitung is_correct berdasarkan perbandingan jawaban
+    $is_correct = (strtoupper($jawaban) === strtoupper($jawaban_benar)) ? 1 : 0;
     
     // Verify peserta_tes belongs to peserta and check status
     $verifyQuery = "
@@ -129,16 +137,17 @@ function saveAnswer($peserta_id) {
         // Update existing answer
         $updateQuery = "
             UPDATE jawaban_peserta
-            SET jawaban = ?, waktu_jawab = NOW()
+            SET jawaban = ?, is_correct = ?, waktu_jawab = NOW()
             WHERE id_peserta_tes = ? AND id_soal = ?
         ";
         
         $stmt = $conn->prepare($updateQuery);
-        $stmt->bind_param('sii', $jawaban, $id_peserta_tes, $id_soal);
+        $stmt->bind_param('siii', $jawaban, $is_correct, $id_peserta_tes, $id_soal);
         
         if ($stmt->execute()) {
             sendSuccess('Jawaban tersimpan', [
                 'id_jawaban' => $checkResult->fetch_assoc()['id_jawaban'],
+                'is_correct' => $is_correct,
                 'timestamp' => date('Y-m-d H:i:s')
             ]);
         } else {
@@ -148,16 +157,17 @@ function saveAnswer($peserta_id) {
         // Insert new answer (use id_soal, not id_soal_tes)
         $insertQuery = "
             INSERT INTO jawaban_peserta 
-            (id_peserta_tes, id_soal, jawaban, waktu_jawab)
-            VALUES (?, ?, ?, NOW())
+            (id_peserta_tes, id_soal, jawaban, is_correct, waktu_jawab)
+            VALUES (?, ?, ?, ?, NOW())
         ";
         
         $stmt = $conn->prepare($insertQuery);
-        $stmt->bind_param('iis', $id_peserta_tes, $id_soal, $jawaban);
+        $stmt->bind_param('iisi', $id_peserta_tes, $id_soal, $jawaban, $is_correct);
         
         if ($stmt->execute()) {
             sendSuccess('Jawaban tersimpan', [
                 'id_jawaban' => $conn->insert_id,
+                'is_correct' => $is_correct,
                 'timestamp' => date('Y-m-d H:i:s')
             ], 201);
         } else {
@@ -209,8 +219,11 @@ function saveAnswerBatch($peserta_id) {
             $id_soal_tes = (int)$answer['id_soal_tes'];
             $jawabanText = sanitizeInput($answer['jawaban']);
             
-            // Convert id_soal_tes to id_soal
-            $soalQuery = "SELECT id_soal FROM soal_tes WHERE id_soal_tes = ? LIMIT 1";
+            // Convert id_soal_tes to id_soal and get jawaban_benar
+            $soalQuery = "SELECT st.id_soal, bs.jawaban_benar 
+                          FROM soal_tes st 
+                          JOIN bank_soal bs ON st.id_soal = bs.id_soal 
+                          WHERE st.id_soal_tes = ? LIMIT 1";
             $stmt = $conn->prepare($soalQuery);
             $stmt->bind_param('i', $id_soal_tes);
             $stmt->execute();
@@ -220,7 +233,12 @@ function saveAnswerBatch($peserta_id) {
                 continue; // Skip invalid soal
             }
             
-            $id_soal = (int)$soalResult->fetch_assoc()['id_soal'];
+            $soalData = $soalResult->fetch_assoc();
+            $id_soal = (int)$soalData['id_soal'];
+            $jawaban_benar = $soalData['jawaban_benar'];
+            
+            // Hitung is_correct berdasarkan perbandingan jawaban
+            $is_correct = (strtoupper($jawabanText) === strtoupper($jawaban_benar)) ? 1 : 0;
             
             // Check if answer exists (use id_soal)
             $checkQuery = "
@@ -234,26 +252,26 @@ function saveAnswerBatch($peserta_id) {
             $checkResult = $stmt->get_result();
             
             if ($checkResult->num_rows > 0) {
-                // Update
+                // Update dengan is_correct
                 $updateQuery = "
                     UPDATE jawaban_peserta
-                    SET jawaban = ?, waktu_jawab = NOW()
+                    SET jawaban = ?, is_correct = ?, waktu_jawab = NOW()
                     WHERE id_peserta_tes = ? AND id_soal = ?
                 ";
                 
                 $stmt = $conn->prepare($updateQuery);
-                $stmt->bind_param('sii', $jawabanText, $id_peserta_tes, $id_soal);
+                $stmt->bind_param('siii', $jawabanText, $is_correct, $id_peserta_tes, $id_soal);
                 $stmt->execute();
             } else {
-                // Insert (use id_soal)
+                // Insert dengan is_correct
                 $insertQuery = "
                     INSERT INTO jawaban_peserta 
-                    (id_peserta_tes, id_soal, jawaban, waktu_jawab)
-                    VALUES (?, ?, ?, NOW())
+                    (id_peserta_tes, id_soal, jawaban, is_correct, waktu_jawab)
+                    VALUES (?, ?, ?, ?, NOW())
                 ";
                 
                 $stmt = $conn->prepare($insertQuery);
-                $stmt->bind_param('iis', $id_peserta_tes, $id_soal, $jawabanText);
+                $stmt->bind_param('iisi', $id_peserta_tes, $id_soal, $jawabanText, $is_correct);
                 $stmt->execute();
             }
         }
