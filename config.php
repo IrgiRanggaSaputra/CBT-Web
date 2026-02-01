@@ -37,28 +37,41 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Base URL - Baca dari environment variables atau auto-generate
 
-
 $base_url = $_ENV['BASE_URL'] ?? $_SERVER['BASE_URL'] ?? null;
 if (!$base_url) {
-    // Paksa selalu http untuk lingkungan lokal/development
-    $protocol = 'http://';
+    // Gunakan HTTPS di production, HTTP di development
+    $is_production = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+                     (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    $protocol = $is_production ? 'https://' : 'http://';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     
-    // Metode paling reliable: gunakan SCRIPT_NAME dari browser
-    // SCRIPT_NAME adalah relative path yang dipassing browser (e.g., /CBT-Web/login.php)
+    // Dapatkan script path dari SCRIPT_NAME
+    // SCRIPT_NAME = /CBT-Web/admin/jadwal_tes.php di production
+    // SCRIPT_NAME = /CBT-Web/login.php di login page
+    // SCRIPT_NAME = /login.php jika langsung root
     $script_name = $_SERVER['SCRIPT_NAME'] ?? '';
     
-    // Ambil directory dari SCRIPT_NAME, bukan dari filesystem __DIR__
-    // dirname('/CBT-Web/login.php') = '/CBT-Web'
-    $relative_path = rtrim(str_replace('\\', '/', dirname($script_name)), '/');
+    // Ekstrak hanya base path (folder utama), bukan file PHP
+    // Cari apakah ada folder bernama 'admin' atau 'peserta' atau 'api'
+    $path_parts = explode('/', trim($script_name, '/'));
+    $base_path = '';
     
-    // Jika relative_path kosong atau '/', gunakan root
-    if ($relative_path === '' || $relative_path === '/') {
-        $relative_path = '';
+    // Cari project root folder (selalu CBT-Web atau yang menjadi www folder)
+    foreach ($path_parts as $i => $part) {
+        if (in_array($part, ['admin', 'peserta', 'api'])) {
+            // Ini adalah subfolder, ambil semua sebelumnya
+            $base_path = '/' . implode('/', array_slice($path_parts, 0, $i));
+            break;
+        }
+    }
+    
+    // Jika tidak ada subfolder, base path adalah root
+    if (empty($base_path) || $base_path === '/') {
+        $base_path = '';
     }
     
     // Build final BASE_URL
-    $base_url = $protocol . $host . $relative_path . '/';
+    $base_url = $protocol . $host . $base_path . '/';
 }
 define('BASE_URL', $base_url);
 
