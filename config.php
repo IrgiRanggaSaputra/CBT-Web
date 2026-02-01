@@ -71,16 +71,35 @@ function redirect($url) {
     // Normalize URL
     $url = trim($url);
     
+    // Debug log
+    error_log("Redirect called with URL: " . $url);
+    error_log("BASE_URL: " . BASE_URL);
+    
     // Jika $url sudah mengandung http/https, redirect langsung
     if (preg_match('/^https?:\/\//i', $url)) {
         header("Location: $url");
         exit;
     }
     
-    // Selalu gunakan BASE_URL untuk redirect
-    // Hapus leading slash dan redirect ke BASE_URL
+    // Handle relative path: ../login.php, login.php, /login.php
     $url = ltrim($url, '/');
-    header("Location: " . rtrim(BASE_URL, '/') . '/' . $url);
+    
+    // Ganti ../ dengan empty untuk handle parent directory
+    $url = str_replace('../', '', $url);
+    
+    // Build final redirect URL
+    $final_url = rtrim(BASE_URL, '/') . '/' . $url;
+    
+    error_log("Final redirect URL: " . $final_url);
+    
+    // Make sure no output was sent
+    if (headers_sent($file, $line)) {
+        error_log("ERROR: Headers already sent in $file on line $line");
+        echo "<script>window.location.href = '" . addslashes($final_url) . "';</script>";
+        exit;
+    }
+    
+    header("Location: " . $final_url);
     exit;
 }
    
