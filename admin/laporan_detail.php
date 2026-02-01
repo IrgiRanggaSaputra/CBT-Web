@@ -27,6 +27,7 @@ if (!$peserta_tes) {
 $jawaban_query = "SELECT jp.*, bs.pertanyaan, bs.pilihan_a, bs.pilihan_b, bs.pilihan_c, bs.pilihan_d, bs.pilihan_e, bs.jawaban_benar, bs.bobot
                   FROM jawaban_peserta jp
                   JOIN bank_soal bs ON jp.id_soal = bs.id_soal
+                  WHERE jp.id_peserta_tes = $id_peserta_tes
                   ORDER BY jp.id_jawaban";
 $jawaban_result = mysqli_query($conn, $jawaban_query);
 
