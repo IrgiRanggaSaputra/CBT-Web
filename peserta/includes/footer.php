@@ -2,7 +2,7 @@
     
     <footer class="mt-5 py-4 bg-light">
         <div class="container text-center">
-            <p class="text-muted mb-0">© 2025 CBT Kiyoraka. Irgi Rangga Saputra.</p>
+            <p class="text-muted mb-0">© 2025 CBT Kiyoraka - By Irgi Rangga Saputra (TIF2022_UASWEB1)</p>
         </div>
     </footer>
     

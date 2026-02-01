@@ -1,6 +1,0 @@
-id_kategori,pertanyaan,pilihan_a,pilihan_b,pilihan_c,pilihan_d,pilihan_e,jawaban_benar,bobot,gambar
-1,"Apa kepanjangan dari HTML?","HyperText Markup Language","HyperText Machine Language","HighText Markup Language","HyperText Multiple Language","",A,1,
-1,"CSS digunakan untuk?","Membuat struktur halaman","Mendesain tampilan halaman","Mengelola database","Membuat animasi 3D","",B,1,
-1,"JavaScript adalah bahasa pemrograman yang berjalan di?","Server","Database","Browser","Operating System","Hardware",C,1,
-2,"Rumus luas lingkaran adalah?","πr²","2πr","πd","r²","2r²",A,1,soal_matematika_1.jpg
-2,"Berapa hasil dari 15 x 8?","110","120","130","140","150",B,1,
