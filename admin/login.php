@@ -13,6 +13,6 @@ if (isset($_SESSION['peserta_id'])) {
     redirect('peserta/dashboard.php');
 }
 
-// Jika belum login, redirect ke halaman login yang benar
-redirect('../login.php');
+// Jika belum login, redirect ke halaman login yang benar dengan parameter role
+redirect('../login.php?role=admin');
 ?>

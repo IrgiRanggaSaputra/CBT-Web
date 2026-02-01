@@ -1,15 +1,6 @@
 <?php
 // Peserta Logout Handler
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-
-require_once '../config.php';
-
-// Check if user is logged in
-if (!isset($_SESSION['peserta_id'])) {
-    // Not logged in, redirect to login
-    redirect('login.php');
-}
+session_start();
 
 // No-cache headers to prevent caching of logout page
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -32,7 +23,8 @@ $_SESSION = array();
 // Destroy the session
 session_destroy();
 
-// Redirect to login page
-redirect('login.php');
+// Redirect ke login page - relative path
+header('Location: ../login.php');
+exit;
 ?>
 ?>
