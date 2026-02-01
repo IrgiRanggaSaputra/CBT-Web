@@ -36,11 +36,29 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Base URL - Baca dari environment variables atau auto-generate
+
+
 $base_url = $_ENV['BASE_URL'] ?? $_SERVER['BASE_URL'] ?? null;
 if (!$base_url) {
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+    // Paksa selalu http untuk lingkungan lokal/development
+    $protocol = 'http://';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $base_url = $protocol . $host . '/';
+    
+    // Metode paling reliable: gunakan SCRIPT_NAME dari browser
+    // SCRIPT_NAME adalah relative path yang dipassing browser (e.g., /CBT-Web/login.php)
+    $script_name = $_SERVER['SCRIPT_NAME'] ?? '';
+    
+    // Ambil directory dari SCRIPT_NAME, bukan dari filesystem __DIR__
+    // dirname('/CBT-Web/login.php') = '/CBT-Web'
+    $relative_path = rtrim(str_replace('\\', '/', dirname($script_name)), '/');
+    
+    // Jika relative_path kosong atau '/', gunakan root
+    if ($relative_path === '' || $relative_path === '/') {
+        $relative_path = '';
+    }
+    
+    // Build final BASE_URL
+    $base_url = $protocol . $host . $relative_path . '/';
 }
 define('BASE_URL', $base_url);
 
@@ -50,10 +68,22 @@ define('LOCKOUT_MINUTES', 5); // pending/lock duration after too many attempts
 
 // Helper Functions
 function redirect($url) {
-    header("Location: " . BASE_URL . $url);
+    // Normalize URL
+    $url = trim($url);
+    
+    // Jika $url sudah mengandung http/https, redirect langsung
+    if (preg_match('/^https?:\/\//i', $url)) {
+        header("Location: $url");
+        exit;
+    }
+    
+    // Selalu gunakan BASE_URL untuk redirect
+    // Hapus leading slash dan redirect ke BASE_URL
+    $url = ltrim($url, '/');
+    header("Location: " . rtrim(BASE_URL, '/') . '/' . $url);
     exit;
 }
-
+   
 function alert($message, $type = 'success') {
     $_SESSION['alert'] = [
         'message' => $message,
