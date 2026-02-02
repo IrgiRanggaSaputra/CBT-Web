@@ -5,7 +5,7 @@
 
 ---
 
-## 📊 Project Information
+## Project Information
 
 | Aspek | Detail |
 |-------|--------|
@@ -19,11 +19,11 @@
 
 ---
 
-## 🎯 Deskripsi Project
+##  Deskripsi Project
 
 CBT KIYORAKA adalah aplikasi web yang dirancang untuk mengelola proses testing/ujian secara online bagi peserta pelatihan kerja. Sistem ini menyediakan interface yang user-friendly untuk peserta mengerjakan soal dan dashboard lengkap untuk administrator mengelola seluruh aspek testing.
 
-### 🎓 Use Case
+### Use Case
 - Lembaga Pelatihan Kerja (LPK)
 - Sekolah Kejuruan
 - Pusat Pelatihan Profesional
@@ -31,9 +31,9 @@ CBT KIYORAKA adalah aplikasi web yang dirancang untuk mengelola proses testing/u
 
 ---
 
-## ✨ Fitur Utama
+## Fitur Utama
 
-### 👨‍💼 Fitur Administrator
+### Fitur Administrator
 ✅ **Dashboard Statistik**
 - Ringkasan jumlah peserta, jadwal tes, bank soal
 - Statistik hasil tes (lulus/tidak lulus)
@@ -62,7 +62,7 @@ CBT KIYORAKA adalah aplikasi web yang dirancang untuk mengelola proses testing/u
 - Laporan detail per peserta dengan jawaban benar/salah
 - Print laporan dalam format PDF
 
-### 👨‍🎓 Fitur Peserta
+### Fitur Peserta
 ✅ **Authentication**
 - Login dengan nomor peserta dan password
 - Password terenkripsi dengan bcrypt
@@ -88,9 +88,9 @@ CBT KIYORAKA adalah aplikasi web yang dirancang untuk mengelola proses testing/u
 
 ---
 
-## 📸 Screenshots & Demo
+## Screenshots & Demo
 
-### 🖼️ Screenshots
+### Screenshots
 
 **Login Page** - Interface login yang clean dan responsif
 ```
@@ -112,7 +112,7 @@ CBT KIYORAKA adalah aplikasi web yang dirancang untuk mengelola proses testing/u
 [Screenshot akan ditambahkan pada tahap dokumentasi final]
 ```
 
-### 🎬 Video Demonstrasi
+### Video Demonstrasi
 
 Untuk melihat video demonstrasi project:
 - **Tutorial Setup & Installation** - [Coming Soon]
@@ -122,7 +122,7 @@ Untuk melihat video demonstrasi project:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 ```
@@ -150,117 +150,14 @@ Untuk melihat video demonstrasi project:
 - Session Validation
 - CSRF Token (Built-in PHP)
 ```
-
 ---
 
-## 📋 Requirements
-
-### Server Requirements
-- PHP >= 7.4
-- MySQL >= 5.7
-- Apache/Nginx with mod_rewrite
-- cURL Extension
-- MySQLi Extension
-
-### Browser Support
-- Chrome (Latest)
-- Firefox (Latest)
-- Safari (Latest)
-- Edge (Latest)
-- Mobile Browsers (Responsive Design)
-
-### Disk Space
-- Minimum 50MB untuk aplikasi + database
-- Space untuk upload soal gambar (adjustable)
-
----
-
-## 🚀 Installation & Setup
-
-### Step 1: Clone Repository
-```bash
-git clone https://github.com/IrgiRanggaSaputra/CBT-Web.git
-cd CBT-Web
-```
-
-### Step 2: Setup Database
-```bash
-# Menggunakan MySQL CLI:
-mysql -u root -p < database.sql
-
-# Atau menggunakan phpMyAdmin:
-# 1. Login ke phpMyAdmin (http://localhost/phpmyadmin)
-# 2. Buat database baru bernama 'cbt_lpk'
-# 3. Import file database.sql
-```
-
-### Step 3: Configure Database Connection
-Edit file `config.php`:
-```php
-define('DB_HOST', 'localhost');    // Database host
-define('DB_USER', 'root');         // Database username
-define('DB_PASS', '');             // Database password (sesuaikan)
-define('DB_NAME', 'cbt_lpk');      // Database name
-```
-
-### Step 4: Setup Web Server
-#### Menggunakan Laragon:
-```
-1. Copy folder CBT-Web ke: C:\laragon\www\
-2. Akses: http://localhost/CBT-Web
-3. Apache & MySQL otomatis running
-```
-
-#### Menggunakan XAMPP:
-```
-1. Copy folder ke: C:\xampp\htdocs\CBT-Web
-2. Start Apache & MySQL dari XAMPP Control Panel
-3. Akses: http://localhost/CBT-Web
-```
-
-#### Menggunakan VPS/Live Server:
-```
-1. Upload ke folder public_html atau www
-2. Configure document root ke folder project
-3. Enable mod_rewrite di Apache
-4. Set proper file permissions (755 untuk folder, 644 untuk file)
-5. Akses via domain: https://yourdomain.com/CBT-Web
-```
-
-### Step 5: Verify Installation
-```bash
-# Check konfigurasi database
-php -r "
-    require 'config.php';
-    if (mysqli_ping(\$conn)) {
-        echo 'Database connection: OK';
-    } else {
-        echo 'Database connection: FAILED';
-    }
-"
-```
-
-### Step 6: Default Login Credentials
-```
-Admin Login:
-- URL: http://localhost/CBT-Web/login.php
-- Username: admin
-- Password: admin123
-
-Peserta Login:
-- URL: http://localhost/CBT-Web/login.php
-- Nomor Peserta: P001
-- Password: 123456
-```
-
----
-
-## 📖 User Manual
+## User Manual
 
 ### Untuk Administrator
 
 **Login & Dashboard**
-1. Akses http://localhost/CBT-Web/login.php
+1. Akses https://cbtkiyoraka.web.id
 2. Masukkan username dan password admin
 3. Lihat dashboard dengan statistik lengkap
 
@@ -299,7 +196,7 @@ Peserta Login:
 ### Untuk Peserta
 
 **Login**
-1. Akses http://localhost/CBT-Web/login.php
+1. Akses https://cbtkiyoraka.web.id
 2. Masukkan nomor peserta dan password
 3. Klik "Login"
 
@@ -320,7 +217,7 @@ Peserta Login:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 CBT-Web/
@@ -403,7 +300,7 @@ CBT-Web/
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### Tables Overview
 
@@ -418,44 +315,9 @@ CBT-Web/
 | **jadwal_tes_soal** | Soal yang digunakan dalam tes |
 | **jawaban_peserta** | Jawaban yang diberikan peserta |
 
-### Key Fields
-
-**admin table:**
-- id_admin (PRIMARY KEY)
-- username (UNIQUE)
-- password (bcrypt hashed)
-- nama_lengkap
-
-**peserta table:**
-- id_peserta (PRIMARY KEY)
-- nomor_peserta (UNIQUE)
-- nama_lengkap
-- email
-- password (bcrypt hashed)
-- status (aktif/non-aktif)
-
-**bank_soal table:**
-- id_soal (PRIMARY KEY)
-- id_kategori (FOREIGN KEY)
-- pertanyaan
-- pilihan_a to pilihan_e
-- jawaban_benar
-- bobot
-- gambar (optional)
-
-**jadwal_tes table:**
-- id_jadwal (PRIMARY KEY)
-- nama_tes
-- tanggal_mulai
-- tanggal_akhir
-- durasi (in minutes)
-- jumlah_soal
-- passing_grade
-- status
-
 ---
 
-## 🔐 Security Features
+## Security Features
 
 ✅ **Authentication & Authorization**
 - Role-based access control (Admin/Peserta)
@@ -491,104 +353,17 @@ CBT-Web/
 
 ---
 
-## 📱 Responsive Design
-
-Aplikasi fully responsive untuk berbagai devices:
-- ✅ Desktop (1920px+)
-- ✅ Tablet (768px - 1024px)
-- ✅ Mobile (320px - 767px)
-- ✅ Bootstrap 5 Grid System
-- ✅ Mobile-friendly Navigation
-- ✅ Touch-friendly Interface
-
----
-
-## 🤝 Contributing
-
-Untuk berkontribusi pada project ini:
-1. Fork repository
-2. Buat branch baru (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
-
----
-
-## 🐛 Known Issues & Fixes
-
-### Fixed in v1.0.0
-- ✅ Login/Logout flow diperbaiki
-- ✅ BASE_URL configuration issue resolved
-- ✅ Session management improved
-- ✅ Background color authentication pages
-- ✅ Duplicate logout button removed
-
-### TODO for Future Versions
-- 📋 Add more analytics dashboard
-- 📋 Implement online result notifications
-- 📋 Add student learning progress tracking
-- 📋 Implement mobile app version
-- 📋 Add question shuffle feature
-
----
-
-## 🔗 Important Links
-
-| Link | Description |
-|------|-------------|
-| **GitHub** | https://github.com/IrgiRanggaSaputra/CBT-Web |
-| **Issues** | https://github.com/IrgiRanggaSaputra/CBT-Web/issues |
-| **Database** | See `database.sql` |
-
----
-
-## 👨‍💻 Developer Information
+## Developer Information
 
 **Nama:** Irgi Rangga Saputra  
-**NPM:** TIF2022_UASWEB1  
+**NPM:** 23552011343  
 **Universitas:** Universitas Teknologi Bandung  
-**Departemen:** Departemen Bisnis Digital  
-**Mata Kuliah:** Ujian Akhir Semester - Web Development 1  
-**Tanggal:** Januari 2026
+**Departemen:** Departemen Teknik Informatika  
 
 ---
 
-## 📝 License & Credits
+## License & Credits
 
 Proyek ini merupakan hasil pengembangan untuk memenuhi syarat Ujian Akhir Semester mata kuliah **Web Development 1** di **Universitas Teknologi Bandung**.
 
-### Credits:
-- Bootstrap 5.3.0 - Frontend Framework
-- Bootstrap Icons - Icon Library
-- jQuery - JavaScript Library
-- PHP MySQLi - Database Driver
-- Composer - Dependency Manager
-
----
-
-## 📧 Contact & Support
-
-Untuk pertanyaan, bug reports, atau feedback:
-- **GitHub Issues:** https://github.com/IrgiRanggaSaputra/CBT-Web/issues
-- **Email:** Contact via GitHub profile
-
----
-
-## 📌 Version History
-
-### v1.0.0 - January 2026 (Current)
-Initial Release with:
-- Complete admin dashboard & CRUD operations
-- Complete peserta dashboard & testing interface
-- Real-time monitoring & reporting
-- Excel export functionality
-- PDF print capability
-- Security features (password hashing, session management)
-- Responsive design for all devices
-- Database schema with all required tables
-
----
-
-**© 2025 CBT Kiyoraka. By Irgi Rangga Saputra (TIF2022_UASWEB1)**
-
-*Last Updated: February 1, 2026*
+**© 2025 CBT Kiyoraka. By Irgi Rangga Saputra**
