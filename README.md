@@ -92,35 +92,54 @@ CBT KIYORAKA adalah aplikasi web yang dirancang untuk mengelola proses testing/u
 
 ### Screenshots
 
+**Landing Page** - Informasi Aplikasi
+
+![login](assets/image/landing_page.png)
+
 **Login Page** - Interface login yang clean dan responsif
-```
-[Screenshot akan ditambahkan pada tahap dokumentasi final]
-```
 
-**Admin Dashboard** - Ringkasan statistik dan monitoring
-```
-[Screenshot akan ditambahkan pada tahap dokumentasi final]
-```
+![login](assets/image/login.png)
 
-**Peserta Dashboard** - Daftar jadwal dan hasil tes
-```
-[Screenshot akan ditambahkan pada tahap dokumentasi final]
-```
+
+**Admin Dashboard** - Ringkasan Informasi 
+
+![login](assets/image/dashboar_admin.png)
+
+**Peserta Dashboard** - Daftar jadwal Bagi Peserta
+
+![login](assets/image/dashboar_peserta.png)
+
+**Petunjuk Test** - Informasi Petunjuk Pelaksanaan Tes
+
+![login](assets/image/petunjuk_tes.png)
 
 **Test Interface** - Interface mengerjakan soal dengan timer
-```
-[Screenshot akan ditambahkan pada tahap dokumentasi final]
-```
+
+![login](assets/image/test.png)
+
+**Bank Soal** - Daftar Bank Soal
+
+![login](assets/image/bank_soal.png)
+
+**Monitoring** - Monitoring pengerjaan Untuk Admin
+
+![login](assets/image/bank_soal.png)
+
+**Jadwal Tes** - Jadwal Test Untuk Admin Membuka Jadwal
+
+![login](assets/image/jadwal_tes.png)
+
+**Kategori Soal** 
+
+![login](assets/image/kategori_soal.png)
+
+**Laporan** - Laporan Untuk Admin Memudahkan Report 
+
+![login](assets/image/laporan.png)
 
 ### Video Demonstrasi
 
-Untuk melihat video demonstrasi project:
-- **Tutorial Setup & Installation** - [Coming Soon]
-- **Admin User Walkthrough** - [Coming Soon]
-- **Peserta User Walkthrough** - [Coming Soon]
-- **Testing Feature Demo** - [Coming Soon]
-
----
+![login](assets/image/demo.gif)
 
 ## Tech Stack
 
